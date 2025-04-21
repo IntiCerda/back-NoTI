@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const locationCollection = "locations"
+const locationCollection = "WazePeruvian"
 
 // LocationRepository maneja las operaciones de base de datos para locations
 type LocationRepository struct {
