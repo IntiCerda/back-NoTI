@@ -1,4 +1,3 @@
-// internal/handlers/graphql.go
 package handlers
 
 import (

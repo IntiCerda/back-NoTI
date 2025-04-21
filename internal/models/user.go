@@ -1,4 +1,3 @@
-// internal/models/user.go
 package models
 
 // User representa un usuario en nuestro sistema
