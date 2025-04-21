@@ -12,8 +12,7 @@ type Location struct {
 	Longitude float64            `json:"longitude" bson:"longitude"`
 	Comment   string             `json:"comment" bson:"comment"`
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
-	// MongoDB usa GeoJSON para coordenadas
-	Location struct {
+	Location  struct {
 		Type        string    `json:"type" bson:"type"`
 		Coordinates []float64 `json:"coordinates" bson:"coordinates"`
 	} `json:"location" bson:"location"`

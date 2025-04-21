@@ -1,63 +1,59 @@
 package graph
 
 import (
+	"context"
 	"errors"
-	"fmt"
+	"time"
 
 	"github.com/IntiCerda/gin-graphql-api/internal/models"
 	"github.com/IntiCerda/gin-graphql-api/internal/repository"
 	"github.com/graphql-go/graphql"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Resolver struct {
 	LocationRepo *repository.LocationRepository
 }
 
-// Simulamos una base de datos con un mapa
-var users = map[string]*models.User{
-	"1": {ID: "1", Name: "Usuario 1", Email: "usuario1@example.com"},
-	"2": {ID: "2", Name: "Usuario 2", Email: "usuario2@example.com"},
+func (r *Resolver) ResolveLocations(p graphql.ResolveParams) (interface{}, error) {
+	return r.LocationRepo.GetAllLocations(context.Background())
 }
 
-func (r *Resolver) ResolveUser(p graphql.ResolveParams) (interface{}, error) {
-	id, ok := p.Args["id"].(string)
+func (r *Resolver) ResolveLocationByID(p graphql.ResolveParams) (interface{}, error) {
+	idStr, ok := p.Args["id"].(string)
 	if !ok {
-		return nil, errors.New("id debe ser una cadena")
+		return nil, errors.New("id inválido")
 	}
-
-	user, exists := users[id]
-	if !exists {
-		return nil, errors.New("usuario no encontrado")
+	id, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		return nil, err
 	}
-
-	return user, nil
+	return r.LocationRepo.GetLocationByID(context.Background(), id)
 }
 
-func (r *Resolver) ResolveUsers(p graphql.ResolveParams) (interface{}, error) {
-	var userList []*models.User
-	for _, user := range users {
-		userList = append(userList, user)
-	}
-	return userList, nil
-}
+func (r *Resolver) CreateLocation(p graphql.ResolveParams) (interface{}, error) {
+	latitude, latOK := p.Args["latitude"].(float64)
+	longitude, longOK := p.Args["longitude"].(float64)
+	comment, _ := p.Args["comment"].(string)
 
-func (r *Resolver) CreateUser(p graphql.ResolveParams) (interface{}, error) {
-	name, nameOK := p.Args["name"].(string)
-	email, emailOK := p.Args["email"].(string)
-
-	if !nameOK || !emailOK {
-		return nil, errors.New("argumentos inválidos")
+	if !latOK || !longOK {
+		return nil, errors.New("latitud y longitud son requeridas")
 	}
 
-	newID := fmt.Sprintf("%d", len(users)+1)
+	loc := &models.Location{
+		Latitude:  latitude,
+		Longitude: longitude,
+		Comment:   comment,
+		CreatedAt: time.Now(),
+	}
+	loc.Location.Type = "Point"
+	loc.Location.Coordinates = []float64{longitude, latitude}
 
-	newUser := &models.User{
-		ID:    newID,
-		Name:  name,
-		Email: email,
+	inserted, err := r.LocationRepo.InsertLocation(context.Background(), loc)
+	if err != nil {
+		return nil, err
 	}
 
-	users[newID] = newUser
-
-	return newUser, nil
+	loc.ID = inserted
+	return loc, nil
 }
