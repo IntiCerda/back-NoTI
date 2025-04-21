@@ -41,11 +41,10 @@ func GetMongoClient() (*mongo.Client, error) {
 	return mongoClient, err
 }
 
-// GetMongoDB retorna la base de datos Mongo que vas a usar
 func GetMongoDB(client *mongo.Client) *mongo.Database {
 	dbName := os.Getenv("MONGODB_DB_NAME")
 	if dbName == "" {
-		dbName = "mapsnt" // nombre por defecto
+		dbName = "mapsnt" 
 	}
 	return client.Database(dbName)
 }
