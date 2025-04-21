@@ -2,12 +2,14 @@ package graph
 
 import "github.com/graphql-go/graphql"
 
-var userType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "User",
+var locationType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Location",
 	Fields: graphql.Fields{
-		"id":    &graphql.Field{Type: graphql.String},
-		"name":  &graphql.Field{Type: graphql.String},
-		"email": &graphql.Field{Type: graphql.String},
+		"id":        &graphql.Field{Type: graphql.String},
+		"latitude":  &graphql.Field{Type: graphql.Float},
+		"longitude": &graphql.Field{Type: graphql.Float},
+		"comment":   &graphql.Field{Type: graphql.String},
+		"createdAt": &graphql.Field{Type: graphql.String},
 	},
 })
 
@@ -15,16 +17,16 @@ func CreateSchema(r *Resolver) (*graphql.Schema, error) {
 	queryType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
-			"user": &graphql.Field{
-				Type: userType,
+			"locations": &graphql.Field{
+				Type:    graphql.NewList(locationType),
+				Resolve: r.ResolveLocations,
+			},
+			"location": &graphql.Field{
+				Type: locationType,
 				Args: graphql.FieldConfigArgument{
 					"id": &graphql.ArgumentConfig{Type: graphql.String},
 				},
-				Resolve: r.ResolveUser,
-			},
-			"users": &graphql.Field{
-				Type:    graphql.NewList(userType),
-				Resolve: r.ResolveUsers,
+				Resolve: r.ResolveLocationByID,
 			},
 		},
 	})
@@ -32,13 +34,14 @@ func CreateSchema(r *Resolver) (*graphql.Schema, error) {
 	mutationType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Mutation",
 		Fields: graphql.Fields{
-			"createUser": &graphql.Field{
-				Type: userType,
+			"createLocation": &graphql.Field{
+				Type: locationType,
 				Args: graphql.FieldConfigArgument{
-					"name":  &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
-					"email": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
+					"latitude":  &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Float)},
+					"longitude": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Float)},
+					"comment":   &graphql.ArgumentConfig{Type: graphql.String},
 				},
-				Resolve: r.CreateUser,
+				Resolve: r.CreateLocation,
 			},
 		},
 	})
