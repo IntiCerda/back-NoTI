@@ -9,6 +9,8 @@ var locationType = graphql.NewObject(graphql.ObjectConfig{
 		"latitude":  &graphql.Field{Type: graphql.Float},
 		"longitude": &graphql.Field{Type: graphql.Float},
 		"comment":   &graphql.Field{Type: graphql.String},
+		"title":     &graphql.Field{Type: graphql.String},
+		"category":  &graphql.Field{Type: graphql.String},
 		"createdAt": &graphql.Field{Type: graphql.String},
 	},
 })
@@ -40,6 +42,8 @@ func CreateSchema(r *Resolver) (*graphql.Schema, error) {
 					"latitude":  &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Float)},
 					"longitude": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Float)},
 					"comment":   &graphql.ArgumentConfig{Type: graphql.String},
+					"title":     &graphql.ArgumentConfig{Type: graphql.String},
+					"category":  &graphql.ArgumentConfig{Type: graphql.String},
 				},
 				Resolve: r.CreateLocation,
 			},
