@@ -31,8 +31,6 @@ func (r *Resolver) ResolveLocationByID(p graphql.ResolveParams) (interface{}, er
 	return r.LocationRepo.GetLocationByID(context.Background(), id)
 }
 
-//Funcion para retonar comentario activos (2 horas)
-
 func (r *Resolver) CreateLocation(p graphql.ResolveParams) (interface{}, error) {
 	latitude, latOK := p.Args["latitude"].(float64)
 	longitude, longOK := p.Args["longitude"].(float64)

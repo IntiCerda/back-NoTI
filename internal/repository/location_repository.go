@@ -31,11 +31,15 @@ func (r *LocationRepository) InsertLocation(ctx context.Context, loc *models.Loc
 
 func (r *LocationRepository) GetAllLocations(ctx context.Context) ([]*models.Location, error) {
 	var locations []*models.Location
-	cursor, err := r.collection.Find(ctx, bson.M{})
+	cutoff := time.Now().Add(-6 * time.Hour)
+	filter := bson.M{"createdAt": bson.M{"$gte": cutoff}}
+
+	cursor, err := r.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+
 	for cursor.Next(ctx) {
 		var loc models.Location
 		if err := cursor.Decode(&loc); err != nil {
@@ -54,4 +58,3 @@ func (r *LocationRepository) GetLocationByID(ctx context.Context, id primitive.O
 	}
 	return &loc, nil
 }
-
